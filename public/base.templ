@@ -1,0 +1,51 @@
+package public
+
+templ DocType() {
+    <!DOCTYPE html>
+}
+
+templ Head() {
+    <head>
+        <link rel="stylesheet" href="static/dist/tailwind.css"/> 
+        <script src="https://unpkg.com/htmx.org@latest"></script>
+  <script src="https://unpkg.com/htmx.org@latest/dist/ext/alpine-morph.js"></script>
+  <!-- Alpine Plugins -->
+  <script defer src="https://unpkg.com/@alpinejs/morph@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine Core -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+        <link rel="icon" type="image/x-icon" href="static/dist/favicon.ico"/>
+    </head>
+}
+
+templ TopBar() {
+    <div class="bg-blue-500 text-white w-full p-4 flex justify-between items-center">
+        <div class="text-lg font-semibold">
+        <b>S</b>ecure <b>W</b>eb <b>A</b>pplication <b>T</b>esting
+        </div>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a hx-get="/index" hx-swap="outerHTML" hx-target="#root" class="hover:text-blue-300">Home</a></li>
+                <li><a href="/about" class="hover:text-blue-300">About</a></li>
+                <li><a href="/contact" class="hover:text-blue-300">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+}
+
+templ Body(component templ.Component) {
+    <body id="body" class="bg-gray-100 w-full flex flex-col relative">
+        @TopBar()
+        <main id="main" class="flex-grow">
+            {! component}
+        </main>
+    </body>
+}
+
+templ Base(component templ.Component) {
+    @DocType()
+    <html>
+        @Head()
+        @Body(component)
+    </html>
+}
