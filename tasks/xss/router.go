@@ -77,6 +77,7 @@ func RegisterRoutes(r *gin.Engine) error {
             // Listen to message channel and send updates
             if msg, ok := <-sseChan; ok {
                 c.SSEvent("update", msg)
+				c.Writer.Flush()
                 return true // continue streaming
             }
             return false // stop streaming if channel is closed
@@ -166,9 +167,9 @@ var adminComments = []string{
 // getRandomComment returns a random comment from the adminComments slice.
 func getRandomComment() string {
     // Seed the random number generator to make results more unpredictable
-    rand.Seed(time.Now().UnixNano())
+    r := rand.New(rand.NewSource(time.Now().UnixNano()))
     // Generate a random index based on the length of the adminComments slice
-    index := rand.Intn(len(adminComments))
+    index := r.Intn(len(adminComments))
     // Return the comment at the randomly selected index
     return adminComments[index]
 }
