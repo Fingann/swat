@@ -8,6 +8,7 @@ import (
 	"github.com/fingann/swat/pkg/renderer"
 	"github.com/fingann/swat/public"
 	"github.com/fingann/swat/tasks/injection"
+	"github.com/fingann/swat/tasks/hardcoded"
 	"github.com/fingann/swat/tasks/traversal"
 
 	"github.com/fingann/swat/tasks/xss"
@@ -40,6 +41,11 @@ func main() {
 	}
 
 	if err:= traversal.RegisterRoutes(r); err != nil {
+		fmt.Printf("failed to register routes: %v", err)
+		return
+	}
+
+	if err:= hardcoded.RegisterRoutes(r); err != nil {
 		fmt.Printf("failed to register routes: %v", err)
 		return
 	}
