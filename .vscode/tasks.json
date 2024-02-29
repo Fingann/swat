@@ -4,7 +4,7 @@
         {
             "label": "generate-templ",
             "type": "shell",
-            "command": "./templ generate",
+            "command": "templ generate",
             "options": {
                 "cwd": "${workspaceFolder}"
             },

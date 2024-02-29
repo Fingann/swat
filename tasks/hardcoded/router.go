@@ -2,6 +2,7 @@ package hardcoded
 
 import (
 	_ "embed"
+	"github.com/fingann/swat/pkg/flags"
 	"math/rand"
 	"net/http"
 	"sync"
@@ -26,17 +27,16 @@ type metrics struct {
 }
 
 func RegisterRoutes(r *gin.Engine) error {
-	
 
 	r.GET("/hardcoded", func(c *gin.Context) {
 		once.Do(func() {
 			go func() {
 				// increate visitorCount by random number
 				for i := 0; i < 1000; i++ {
-				randomVisitors := rand.Intn(10)
-				visitorCount += randomVisitors
-				time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
-					
+					randomVisitors := rand.Intn(10)
+					visitorCount += randomVisitors
+					time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+
 				}
 			}()
 		})
@@ -45,7 +45,7 @@ func RegisterRoutes(r *gin.Engine) error {
 			c.HTML(http.StatusOK, "", public.Base(HardcodedPage()))
 			return
 		}
-		c.HTML(http.StatusOK, "", HardcodedPage() )
+		c.HTML(http.StatusOK, "", HardcodedPage())
 	})
 
 	r.GET("/hardcoded/openapi", func(c *gin.Context) {
@@ -53,7 +53,7 @@ func RegisterRoutes(r *gin.Engine) error {
 			c.HTML(http.StatusOK, "", public.Base(OpenAPIPage()))
 			return
 		}
-		c.HTML(http.StatusOK, "", OpenAPIPage() )
+		c.HTML(http.StatusOK, "", OpenAPIPage())
 	})
 
 	r.GET("/hardcoded/openapi.yaml", func(c *gin.Context) {
@@ -79,12 +79,9 @@ func RegisterRoutes(r *gin.Engine) error {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"flag": Flag,
+			"flag": flags.HardCodedFlag,
 		})
 	})
-
-
-
 
 	return nil
 }

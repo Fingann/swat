@@ -1,11 +1,14 @@
 package xss
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"github.com/fingann/swat/pkg/flags"
+	launcher2 "github.com/go-rod/rod/lib/launcher"
 	"io"
 	"net/http"
-	"sync"
 	"time"
 
 	"math/rand"
@@ -15,167 +18,182 @@ import (
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 )
-var Flag ="flag{try_the_admin_user}"
+
+var Flag = "flag{try_the_admin_user}"
 var sseChan = make(chan string)
 
 func RegisterRoutes(r *gin.Engine) error {
-	db,err:= SetupDb()
+	db, err := SetupDb()
 	if err != nil {
 		return fmt.Errorf("failed to setup database: %w", err)
 	}
 
 	r.GET("/xss", func(c *gin.Context) {
-			c.SetCookie("testFlag", "the admin might have a flag", 0, "/xss", "localhost", false, false)
-
-			// Make sure the website is visited only once
-			sync.OnceFunc(func(){
-				go VisitWebsiteWithRod("http://localhost:8081/xss")
-			})
+		// Clear all cookies except the flag
+		for _, cookie := range c.Request.Cookies() {
+			if cookie.Name == "flag" {
+				continue
+			}
+			c.SetCookie(cookie.Name, "", -1, "/", "", false, true)
+		}
+		if _, err := c.Cookie("flag"); err != nil {
+			if errors.Is(err, http.ErrNoCookie) {
+				c.SetCookie("flag", "no_flag here", 0, "/xss", "", false, false)
+			} else {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
 		// Refresh the whole page if the header is not set
 		if c.GetHeader("HX-Request") == "" {
-			
+
 			c.HTML(http.StatusOK, "", public.Base(Page()))
 			return
 		}
 
-		c.HTML(http.StatusOK, "", Page() )
+		c.HTML(http.StatusOK, "", Page())
 	})
 
-
 	r.POST("/xss/comments/create", func(c *gin.Context) {
-		user,_ := c.GetPostForm("user")
-		comment,_ := c.GetPostForm("comment")
+		user, _ := c.GetPostForm("user")
+		comment, _ := c.GetPostForm("comment")
 		if len(user) == 0 || len(comment) == 0 {
 			c.AbortWithError(http.StatusBadRequest, fmt.Errorf("user and comment must be set"))
 			return
 		}
-		if err:= CreateComment(db, comment, user); err != nil {
+		if err := CreateComment(db, comment, user); err != nil {
 			// ignore and fetch comments
 		}
 
-		go MakeAdminVisit(c,db)
-
+		go MakeAdminVisit(c, db)
 
 		c.Redirect(http.StatusFound, "/xss/comments")
 	})
 
 	r.GET("/xss/comments", func(c *gin.Context) {
-		comments,err:= GetComments(db)
+		comments, err := GetComments(db)
 		if err != nil {
 			c.HTML(http.StatusOK, "", CommentRows(nil))
 			return
 		}
 		c.HTML(http.StatusOK, "", CommentRows(comments))
 	})
-    r.GET("/xss/sse", func(c *gin.Context) {
-        c.Stream(func(w io.Writer) bool {
-            c.Writer.Header().Set("Content-Type", "text/event-stream")
-            c.Writer.Header().Set("Cache-Control", "no-cache")
-            c.Writer.Header().Set("Connection", "keep-alive")
-            c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	r.GET("/xss/sse", func(c *gin.Context) {
+		c.Stream(func(w io.Writer) bool {
+			c.Writer.Header().Set("Content-Type", "text/event-stream")
+			c.Writer.Header().Set("Cache-Control", "no-cache")
+			c.Writer.Header().Set("Connection", "keep-alive")
+			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-            // Listen to message channel and send updates
-            if msg, ok := <-sseChan; ok {
-                c.SSEvent("update", msg)
+			// Listen to message channel and send updates
+			if msg, ok := <-sseChan; ok {
+				c.SSEvent("update", msg)
 				c.Writer.Flush()
-                return true // continue streaming
-            }
-            return false // stop streaming if channel is closed
-        })
-    })
+				return true // continue streaming
+			}
+			return false // stop streaming if channel is closed
+		})
+	})
 
-
-	return nil 
+	return nil
 }
 
-
-func MakeAdminVisit(c *gin.Context,db *sql.DB) {
+func MakeAdminVisit(c *gin.Context, db *sql.DB) {
 	if IsAdminVisit(c) {
 		return // If the flag is set this w as the admin user, do not trigger visit again
 	}
-	countBeforeVisit,err := GetCommentCount(db)
+	countBeforeVisit, err := GetCommentCount(db)
 	if err != nil {
 		return
 	}
 
 	VisitWebsiteWithRod("http://localhost:8081/xss")
 	// If the comment count has increased, then admin was tricked into posting
-	currentCount,err:= GetCommentCount(db)
+	currentCount, err := GetCommentCount(db)
 	if err != nil {
 		return
 	}
 	// If the count has not increased, then make a reply from the admin
-	if  countBeforeVisit == currentCount {
+	if countBeforeVisit == currentCount {
 		CreateComment(db, getRandomComment(), "admin")
 	}
 }
 
 func IsAdminVisit(c *gin.Context) bool {
-	flag,_:= c.Cookie("flag") 
-	return flag == Flag
+	flagCookie, _ := c.Cookie("flag")
+	return flagCookie == flags.TraversalFlag
 }
 
+func VisitWebsiteWithRod(site string) error {
+	browser := rod.New()
+	l := launcher2.New().Context(context.Background())
+	delete(l.Flags, "rod-leakless") // sweaty hack to disable leakless, it causes Defender to report the binary as malware
+	u, err := l.Launch()
+	if err != nil {
+		return err
+	}
+	browser = browser.ControlURL(u)
 
-func VisitWebsiteWithRod(site string) {
-	browser := rod.New().MustConnect()
+	if err := browser.Connect(); err != nil {
+		fmt.Printf("failed to connect to rod: %v", err)
+		return fmt.Errorf("failed to connect to rod: %w", err)
+	}
 
 	cookie := &proto.NetworkCookieParam{
-		Name:  "flag",
-		Value: Flag,
-		URL:   site,
+		Name:     "flag",
+		Value:    flags.TraversalFlag,
+		URL:      site,
 		HTTPOnly: false,
-		Secure: false,
+		Secure:   false,
 	}
 
 	browser.SetCookies([]*proto.NetworkCookieParam{
 		cookie})
 
-
 	// Even you forget to close, rod will close it after main process ends.
 	defer browser.MustClose()
 
 	// Create a new page
-	 page := browser.MustPage(site).MustWaitStable()
-		_ =page
+	page := browser.MustPage(site).MustWaitStable()
+	_ = page
+	return nil
 }
-
 
 // adminComments holds a list of generic admin responses.
 var adminComments = []string{
-    "Takk for at du tok deg tid til å kommentere.",
-    "Vi setter stor pris på din tilbakemelding.",
-    "Interessant poeng, takk for at du delte.",
-    "Takk for din innsikt.",
-    "Din kommentar er mottatt med takk.",
-    "Takk for at du deler dine tanker med oss.",
-    "Din mening betyr mye for oss.",
-    "Tusen takk for kommentaren!",
-    "Alltid hyggelig med engasjerte lesere.",
-    "Ditt bidrag er verdifullt, takk.",
-    "Vi er takknemlige for din tilbakemelding.",
-    "Din kommentar har blitt notert.",
-    "Takk for at du engasjerer deg i diskusjonen.",
-    "Enig, og takk for at du peker det ut.",
-    "Interessant synspunkt, takk for at du delte det.",
-    "Takk for din støtte.",
-    "Din feedback er viktig for oss, takk.",
-    "Takk for at du bidrar til samtalen.",
-    "Takk for at du deler dine erfaringer med oss.",
-    "Vi takker for din aktive deltagelse.",
+	"Takk for at du tok deg tid til å kommentere.",
+	"Vi setter stor pris på din tilbakemelding.",
+	"Interessant poeng, takk for at du delte.",
+	"Takk for din innsikt.",
+	"Din kommentar er mottatt med takk.",
+	"Takk for at du deler dine tanker med oss.",
+	"Din mening betyr mye for oss.",
+	"Tusen takk for kommentaren!",
+	"Alltid hyggelig med engasjerte lesere.",
+	"Ditt bidrag er verdifullt, takk.",
+	"Vi er takknemlige for din tilbakemelding.",
+	"Din kommentar har blitt notert.",
+	"Takk for at du engasjerer deg i diskusjonen.",
+	"Enig, og takk for at du peker det ut.",
+	"Interessant synspunkt, takk for at du delte det.",
+	"Takk for din støtte.",
+	"Din feedback er viktig for oss, takk.",
+	"Takk for at du bidrar til samtalen.",
+	"Takk for at du deler dine erfaringer med oss.",
+	"Vi takker for din aktive deltagelse.",
 }
 
 // getRandomComment returns a random comment from the adminComments slice.
 func getRandomComment() string {
-    // Seed the random number generator to make results more unpredictable
-    r := rand.New(rand.NewSource(time.Now().UnixNano()))
-    // Generate a random index based on the length of the adminComments slice
-    index := r.Intn(len(adminComments))
-    // Return the comment at the randomly selected index
-    return adminComments[index]
+	// Seed the random number generator to make results more unpredictable
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	// Generate a random index based on the length of the adminComments slice
+	index := r.Intn(len(adminComments))
+	// Return the comment at the randomly selected index
+	return adminComments[index]
 }
 
-
-/* //Solution 
+/* //Solution
 <script>
   const formData = new FormData();
   formData.append('user', 'user');
@@ -185,5 +203,5 @@ func getRandomComment() string {
     method: 'POST',
     body: formData
   });
-</script> 
+</script>
 */

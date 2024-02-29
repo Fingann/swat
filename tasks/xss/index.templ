@@ -13,17 +13,15 @@ templ Page() {
 // BlogEntry represents a single blog post, including a title, content, and an illustrative image.
 templ BlogEntry() {
     <div class="blog-entry w-4/5">
-    <article class=" mx-auto bg-white p-6 rounded-lg shadow-lg">
         <article class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4">Eventyret om Kodekrigeren og Skriptskurken</h1>
-        <img src="/static/dist/images/xss-blog-story.webp" alt="XSS Illustrasjon" class="mt-4 w-4/5 rounded-lg justify-center mx-auto mb-4" />
-        <p class="text-gray-600 mb-4">I et land langt, langt borte, i en verden styrt av kode og digitale eventyr, bodde en tapper kodekriger kjent som SikkerSiv. SikkerSivs oppdrag var enkelt men av ytterste viktighet: å verne Innbyggerne mot SkriptSkoddes ondsinnede planer i XSS-Land.</p>
-        <p class="text-gray-600 mb-4">SkriptSkodde, den beryktede skurken, hadde mestret kunsten å hviske skadelige skript inn i de mest uskyldige av websider. Hans siste påfunn? Et skript så lurt at det kunne få enhver side til å utbasunere "Muhaha!" til intetanendes forbauselse.</p>
-        <p class="text-gray-600 mb-4">Men SikkerSiv var ikke en som lot seg skremme så lett. Med et arsenal av Content-Security-Policy skjold og Sanitization-trollformler ved sin side, gikk hun modig til verks. Hver gang SkriptSkodde forsøkte seg på et nytt triks, var SikkerSiv der for å avverge angrepet, beskytte nettstedene og holde Innbyggernes data trygg.</p>
-        <p class="text-gray-600 mb-4">Til slutt, etter mange trefninger hvor SkriptSkodde ble overlistet av SikkerSivs snarrådighet, måtte han trekke seg tilbake, beseiret og uten makt til å utføre sine skumle planer. XSS-Land var igjen et trygt sted, takket være SikkerSivs urokkelige vilje og beskyttelse.</p>
-        <p class="text-gray-600">Så, la oss ta lærdom fra SikkerSivs eventyr: Den beste beskyttelsen er å være forberedt. Ved å anvende sikkerhetsbestemmelser og holde våre nettsteder trygt forseglet mot inntrengere, kan vi alle bidra til å holde det digitale riket sikkert for alle.</p>
-    </article>
-    </article>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Eventyret om Kodekrigeren og Skriptskurken</h1>
+            <img src="/static/dist/images/xss-blog-story.webp" alt="XSS Illustrasjon" class="mt-4 w-4/5 rounded-lg justify-center mx-auto mb-4" />
+            <p class="text-gray-600 mb-4">I et land langt, langt borte, i en verden styrt av kode og digitale eventyr, bodde en tapper kodekriger kjent som SkikkreSiv. SkikkreSivs oppdrag var enkelt men av ytterste viktighet: å verne Innbyggerne mot SkriptKåres ondsinnede planer i Secure-Land.</p>
+            <p class="text-gray-600 mb-4">SkriptKåre, den beryktede skurken, hadde mestret kunsten å hviske skadelige skript inn i de mest uskyldige av websider. Hans siste påfunn? Et skript så lurt at det kunne få enhver side til å utbasunere "Muhaha!" til intetanendes forbauselse.</p>
+            <p class="text-gray-600 mb-4">Men SkikkreSiv var ikke en som lot seg skremme så lett. Med et arsenal av Content-Security-Policy skjold og Sanitization-formler ved sin side, gikk hun modig til verks. Hver gang SkriptKåre forsøkte seg på et nytt triks, var SkikkreSiv der for å avverge angrepet, beskytte nettstedene og holde Innbyggernes data trygg.</p>
+            <p class="text-gray-600 mb-4">Til slutt, etter mange trefninger hvor SkriptKåre ble overlistet av SkikkreSivs snarrådighet, måtte han trekke seg tilbake, beseiret og uten makt til å utføre sine skumle planer. Secure-Land var igjen et trygt sted, takket være SkikkreSivs urokkelige vilje og beskyttelse.</p>
+            <p class="text-gray-600">Så, la oss ta lærdom fra SkikkreSivs eventyr: Den beste beskyttelsen er å være forberedt. Ved å anvende sikkerhetsbestemmelser og holde våre nettsteder trygt forseglet mot inntrengere, kan vi alle bidra til å holde det digitale riket sikkert for alle.</p>
+        </article>
     </div>
 }
 
@@ -88,7 +86,7 @@ templ CommentRows(comments []Comments) {
 
 
 templ CreateCommentSection() {
-    <div x-data="{ userName: 's', commentText: 's', errorShown: false }" class="create-comment-section mt-8 w-4/5">
+    <div x-data="{ userName: '', commentText: '', errorShown: false }" class="create-comment-section mt-8 mb-8 w-4/5">
         <h3 class="text-xl font-semibold text-gray-800 mb-4">Leave a Comment</h3>
         <form hx-post="/xss/comments/create" hx-swap="innerHTML" hx-target="#comments" x-on:htmx:after-on-load.window="commentText = '';" class="w-full">
             <div class="mb-6">

@@ -26,29 +26,28 @@ htmx.logAll();
   htmx.config.debug = true;
   htmx.config.includeIndicatorStyles = false; // Optional: Set to false to not show the indicators
 </script>
-        <title>Secure Web Application Testing</title>
+        <title>SWAT - Secure Web Application Testing</title>
     </head>
 }
 
 templ TopBar() {
     <div class="bg-blue-500 text-white w-full p-4 flex justify-between items-center">
         <div class="text-lg font-semibold">
-        <b>S</b>ecure <b>W</b>eb <b>A</b>pplication <b>T</b>esting
+        <a hx-get="/index" hx-swap="outerHTML" hx-push-url="true" hx-target="#root" class="hover:text-blue-300">SWAT - <b>S</b>ecure <b>W</b>eb <b>A</b>pplication <b>T</b>esting       </a>
         </div>
         <nav>
             <ul class="flex space-x-4">
-                <li><a hx-get="/index" hx-swap="outerHTML" hx-target="#root" class="hover:text-blue-300">Home</a></li>
-                <li><a href="/about" class="hover:text-blue-300">About</a></li>
-                <li><a href="/contact" class="hover:text-blue-300">Contact</a></li>
+                <li><a hx-get="/index" hx-swap="outerHTML" hx-push-url="true"
+                 hx-target="#root" class="hover:text-blue-300">Home</a></li>
             </ul>
         </nav>
     </div>
 }
 
 templ Body(component templ.Component) {
-    <body id="body" class="bg-gray-100 w-full flex flex-col relative">
+    <body id="body" class="min-h-screen bg-gray-100 flex flex-col relative m-0 p-0">
         @TopBar()
-        <main id="main" class="flex-grow">
+        <main id="main" style="min-height: calc(100vh - 64px);" class="flex flex-col justify-between ">
             {! component}
         </main>
     </body>

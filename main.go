@@ -3,7 +3,11 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/fingann/swat/tasks/cmonster"
+	"github.com/fingann/swat/tasks/security"
+	"io"
 	"net/http"
+	"os"
 
 	"github.com/fingann/swat/pkg/renderer"
 	"github.com/fingann/swat/public"
@@ -12,49 +16,88 @@ import (
 	"github.com/fingann/swat/tasks/traversal"
 	"github.com/fingann/swat/tasks/validation"
 
+	"sync"
+
 	"github.com/fingann/swat/tasks/xss"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/browser"
 )
 
 //go:embed dist
 var distFolder embed.FS
 
 func main() {
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Recovery())
+
+	if _, ok := os.LookupEnv("DEBUG"); !ok {
+		r.Use(gin.Logger())
+	} else {
+		r.Use(gin.LoggerWithConfig(gin.LoggerConfig{Output: io.Discard}))
+	}
+
 	r.HTMLRender = &renderer.Templ{}
 
 	r.StaticFS("/static/", http.FS(distFolder))
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "", public.Index("") )
+		c.HTML(http.StatusOK, "", public.Base(public.IndexPage("")))
 	})
 
 	r.GET("/index", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "", public.IndexPage("") )
+		if c.GetHeader("HX-Request") == "" {
+			c.HTML(http.StatusOK, "", public.Base(public.IndexPage("")))
+			return
+		}
+		c.HTML(http.StatusOK, "", public.IndexPage(""))
 	})
-	if err:= injection.RegisterRoutes(r); err != nil {
+	if err := injection.RegisterRoutes(r); err != nil {
 		fmt.Printf("failed to register routes: %v", err)
 		return
 	}
-	if err:= xss.RegisterRoutes(r); err != nil {
-		fmt.Printf("failed to register routes: %v", err)
-		return
-	}
-
-	if err:= traversal.RegisterRoutes(r); err != nil {
+	if err := xss.RegisterRoutes(r); err != nil {
 		fmt.Printf("failed to register routes: %v", err)
 		return
 	}
 
-	if err:= hardcoded.RegisterRoutes(r); err != nil {
+	if err := traversal.RegisterRoutes(r); err != nil {
 		fmt.Printf("failed to register routes: %v", err)
 		return
 	}
 
-	if err:= validation.RegisterRoutes(r); err != nil {
+	if err := hardcoded.RegisterRoutes(r); err != nil {
 		fmt.Printf("failed to register routes: %v", err)
 		return
 	}
 
-	r.Run(":8081")
+	if err := validation.RegisterRoutes(r); err != nil {
+		fmt.Printf("failed to register routes: %v", err)
+		return
+	}
+
+	if err := cmonster.RegisterRoutes(r); err != nil {
+		fmt.Printf("failed to register routes: %v", err)
+		return
+	}
+
+	if err := security.RegisterRoutes(r); err != nil {
+		fmt.Printf("failed to register routes: %v", err)
+		return
+	}
+
+	wg := &sync.WaitGroup{}
+
+	wg.Add(1)
+	go func(wg *sync.WaitGroup, r *gin.Engine) {
+		defer wg.Done()
+		if err := r.Run(":8081"); err != nil {
+			fmt.Printf("failed to run server: %v", err)
+			return
+		}
+	}(wg, r)
+	go xss.VisitWebsiteWithRod("http://localhost:8081/xss")
+
+	browser.OpenURL("http://localhost:8081")
+
+	wg.Wait()
 }

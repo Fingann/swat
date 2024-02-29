@@ -41,8 +41,7 @@ func RegisterRoutes(r *gin.Engine) error {
 			c.AbortWithError(http.StatusNotFound, fmt.Errorf("failed to get file info: %w", err))
 			return
 		}
-
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", path.Base(file.Name())))
 		c.DataFromReader(http.StatusOK, info.Size(), "application/octet-stream", file, nil)
 	})
 
@@ -67,12 +66,13 @@ func RegisterRoutes(r *gin.Engine) error {
 			c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to get items: %w", err))
 			return
 		}
-		fmt.Println("Sending items",len(files))
+		fmt.Println("Sending items", len(files))
 		c.HTML(http.StatusOK, "", ListItems(files))
 	})
 
 	return nil
 }
+
 // GetFile returns a file from the cFolder, helps to act like a file system
 func GetFile(filePath string) (billy.File, error) {
 	file, err := cFolder.Open(filePath)
@@ -80,18 +80,18 @@ func GetFile(filePath string) (billy.File, error) {
 		if strings.Contains(err.Error(), "chroot boundary crossed") {
 			return GetFile(strings.TrimPrefix(filePath, "../"))
 		}
-		if strings.HasPrefix(filePath, "c:/") {
+		if strings.HasPrefix(filePath, "C:/") {
 			return nil, fmt.Errorf("failed to open file: %w", err)
 		}
 
-		return GetFile(path.Join("c:", filePath))
+		return GetFile(path.Join("C:", filePath))
 	}
 
 	return file, nil
 }
 
 var cFolder billy.Filesystem
-var uploadFolder = path.Join("c:", "Program Files", "swat", "files")
+var uploadFolder = path.Join("C:", "Program Files", "swat", "files")
 
 //go:embed instruction.txt
 var instructionFile []byte
@@ -100,7 +100,7 @@ func setupCfolder() error {
 	cFolder = memfs.New()
 	// create root folder
 	cFolder.MkdirAll(uploadFolder, 0755)
-	cFolder.Chroot("c:")
+	cFolder.Chroot("C:")
 
 	// create InstructionFile
 	file, err := cFolder.Create(path.Join(uploadFolder, "instructions.txt"))
@@ -113,8 +113,8 @@ func setupCfolder() error {
 	}
 
 	// Create Flag
-	cFolder.MkdirAll("c:/windows", 0755)
-	file, err = cFolder.Create("c:/windows/flag.txt")
+	cFolder.MkdirAll("C:/windows", 0755)
+	file, err = cFolder.Create("C:/windows/flag.txt")
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}

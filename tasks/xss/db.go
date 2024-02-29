@@ -11,7 +11,7 @@ import (
 // This task is a XSS task ,it contains a in-memory sqlite database and a page where you can make comments.
 // The databse should contain tables for a comment section.
 
-func SetupDb() (*sql.DB,error) {
+func SetupDb() (*sql.DB, error) {
 	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
@@ -21,7 +21,7 @@ func SetupDb() (*sql.DB,error) {
 		return nil, fmt.Errorf("failed to create tables: %w", err)
 	}
 
-	return db,nil
+	return db, nil
 }
 
 func CreateTables(db *sql.DB) error {
@@ -35,7 +35,7 @@ func CreateTables(db *sql.DB) error {
 		return fmt.Errorf("failed to insert admin user: %w", err)
 	}
 
-	_, err = db.Exec("INSERT INTO comments (comment, user) VALUES ('Takk! Jeg har satt opp varsler p[ nye innlegg. Så jeg kommer og leser hvis noe blir lagt inn', 'admin')")
+	_, err = db.Exec("INSERT INTO comments (comment, user) VALUES ('Takk! Jeg har satt opp varsler på nye innlegg. Så jeg kommer og leser hvis noe blir lagt inn', 'admin')")
 	if err != nil {
 		return fmt.Errorf("failed to insert admin user: %w", err)
 	}
@@ -61,12 +61,11 @@ func GetCommentCount(db *sql.DB) (int, error) {
 	return count, nil
 }
 
-
 var linkRegex = regexp.MustCompile(`https?://[^\s]+`)
 
-func SurroundLinkWithTag(comment string)(string){
-	
-	match:= linkRegex.FindAllString(comment, -1)
+func SurroundLinkWithTag(comment string) string {
+
+	match := linkRegex.FindAllString(comment, -1)
 	for _, m := range match {
 		comment = linkRegex.ReplaceAllString(comment, fmt.Sprintf("<a href=\"%s\">%s</a>", m, m))
 	}
@@ -74,10 +73,9 @@ func SurroundLinkWithTag(comment string)(string){
 
 }
 
-
 func GetComments(db *sql.DB) ([]Comments, error) {
 	comments := []Comments{}
-	rows,err:= db.Query("SELECT comment, user,date FROM comments")
+	rows, err := db.Query("SELECT comment, user,date FROM comments")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get comments: %w", err)
 	}
