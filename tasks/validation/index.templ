@@ -2,37 +2,22 @@ package validation
 
 import "fmt"
 
-script updateShoppingCart() {
-    // update the shopping cart sum
-   
-    return cartValue;
-}
-
 templ ValidatePage() {
-  <script>
-  // Alpine.js store for the shopping cart value
-  document.addEventListener('alpine:init', () => {
-    Alpine.store('cart', {
-        value: 0,
-    });
-});
-    </script>
-<div id="root"> 
-  <div class="bg-gray-100 mt-10" x-data="{ cartvalue: $store.cart.value }" @cartppdate.window="
-    cartvalue = 0; 
-    const {id, value} = $event.detail;
+<script>
+ async function cartUpdate(){
+    this.cartValue = 0;
     document.querySelectorAll('input[data-price]').forEach(input => {
-        if (input.getAttribute('data-product-id') === id) {
-            const price = parseFloat(input.getAttribute('data-price'));
-            cartvalue += price * value;
-            return;
-        }
         const price = parseFloat(input.getAttribute('data-price'));
         const quantity = parseInt(input.value) || 0;
-        cartvalue += price * quantity;
+        this.cartValue += price * quantity;
     });
-    Alpine.store('cart').value = cartvalue;
-">
+    document.getElementById("checkout-sum").innerText = cartValue;
+ }
+ window.cartUpdate = cartUpdate;
+
+</script>
+<div id="root"  >
+  <div class="bg-gray-100 mt-10">
     <div class="max-w-4xl mx-auto px-4">
       <!-- Header Section for Total Cash and Cart Value -->
 <div class="flex flex-col space-y-4 mb-2">
@@ -46,7 +31,7 @@ templ ValidatePage() {
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Cart Total</h2>
             <p class="text-lg text-gray-600">Current value of your shopping cart:</p>
-            <p class="text-3xl font-semibold text-green-600">$<span id="checkout-sum" x-text="$store.cart.value"></span></p>
+            <p class="text-3xl font-semibold text-green-600">$<span id="checkout-sum">0</span></p>
         </div>
         <button id="buy-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out">
             Buy Now
@@ -89,31 +74,61 @@ templ Product(product ProductData) {
         <p class="text-lg font-bold text-gray-900 mb-4">Price: ${product.Price}</p>
         <p class="text-gray-700 mb-4">{product.Description}</p>
         <!-- Quantity Incrementer -->
-        <form class="max-w-xs mx-auto" x-data="{ value: 0 }">
+        <div class="max-w-xs mx-auto" >
             <label for={product.Id} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Choose quantity:</label>
             <div class="relative flex items-center max-w-[8rem]">
-                <button 
-                @click={fmt.Sprintf("value = Math.max(value - 1, 0); $dispatch('cartppdate', {id: '%s', value: value})", product.Id)}
+                <button
+                id={fmt.Sprintf("decrement-%s", product.Id)}
                 type="button" class="decrement-button bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 border border-gray-300 rounded-l-lg p-3 h-11 focus:ring-gray-100 focus:ring-2 focus:outline-none">
                     <!-- SVG for minus -->
                     <svg class="w-3 h-3 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
                     </svg>
                 </button>
-                <input type="text" x-model="value" @input.debounce="$dispatch('cartppdate')" data-price={product.Price} data-product-id={product.Id} class="bg-gray-50 border-x-0 border-gray-300 h-11 text-center text-gray-900 block w-full dark:bg-gray-700" placeholder="1"  required />
-                <button 
-                @click={fmt.Sprintf("value = value + 1; $dispatch('cartppdate', {id: '%s', value: value})", product.Id)}
+                <input id={product.Id} type="text" data-price={product.Price} data-product-id={product.Id} class="bg-gray-50 border-x-0 border-gray-300 h-11 text-center text-gray-900 block w-full dark:bg-gray-700" placeholder="1" value="0"  required />
+                <button
+                 id={fmt.Sprintf("increment-%s", product.Id)}
                  type="button" class="increment-button bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 border border-gray-300 rounded-r-lg p-3 h-11 focus:ring-gray-100 focus:ring-2 focus:outline-none">
                     <!-- SVG for plus -->
                     <svg class="w-3 h-3 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
                     </svg>
                 </button>
+                @TriggerCartUpdate(product.Id)
+                @AddItemCount(product.Id, fmt.Sprintf("increment-%s", product.Id))
+                @SubtractItemCount(product.Id, fmt.Sprintf("decrement-%s", product.Id))
             </div>
-        </form>
+        </div>
         
     </div>
 }
+
+script TriggerCartUpdate(inputId string){
+    document.getElementById(inputId).addEventListener('change', function() {
+        cartUpdate()
+    });
+}
+
+script AddItemCount(inputId string,buttonId string){
+    document.getElementById(buttonId).addEventListener('click', function() {
+        let input =document.getElementById(inputId)
+        console.log(input.value)
+        input.value = parseInt(input.value) + 1
+        cartUpdate()
+    });
+}
+
+script SubtractItemCount(inputId string,buttonId string){
+    document.getElementById(buttonId).addEventListener('click', function() {
+        let input =document.getElementById(inputId)
+        console.log(input.value)
+        if (parseInt(input.value) > 0) {
+            input.value = parseInt(input.value) - 1
+        }
+        cartUpdate()
+    });
+}
+
 
 script BuyButtonClick() {
         document.getElementById("buy-button").addEventListener('click', function() {
@@ -124,7 +139,7 @@ script BuyButtonClick() {
                 productQuantityList.push({id: input.getAttribute('data-product-id'), quantity: quantity});
             });
             let totalCash = document.getElementById("total-cash").innerText;
-            let cartSum = Alpine.store('cart').value;
+            let cartSum = document.getElementById("checkout-sum").innerText
             // check if the total cash available is less than the shopping cart value
             if (parseInt(totalCash) <= parseInt(cartSum)) {
                 // if it is not, then display an error message

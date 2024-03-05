@@ -41,7 +41,8 @@ func RegisterRoutes(r *gin.Engine) error {
 			c.AbortWithError(http.StatusNotFound, fmt.Errorf("failed to get file info: %w", err))
 			return
 		}
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", path.Base(file.Name())))
+		filename := path.Base(finalPath)
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 		c.DataFromReader(http.StatusOK, info.Size(), "application/octet-stream", file, nil)
 	})
 

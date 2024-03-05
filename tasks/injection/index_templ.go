@@ -23,7 +23,7 @@ func InjectionPage(err string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"root\" class=\"mt-10 flex items-center justify-center bg-gray-100\"><div class=\"max-w-md w-full space-y-8 p-10 bg-white rounded-lg shadow-md\"><div><h2 class=\"mt-6 text-center text-3xl font-extrabold text-gray-900\">Sign in to your account\r</h2></div><form class=\"mt-8 space-y-6\" hx-post=\"/injection/login\" hx-target=\"#root\" hx-swap=\"outerHTML\"><div class=\"rounded-md shadow-sm -space-y-px\"><div><label for=\"username\" class=\"\">Username</label> <input hx-preserve id=\"username\" name=\"username\" type=\"text\" autocomplete=\"username\" required class=\"appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm\" placeholder=\"user\"></div><div><label for=\"password\" class=\"\">Password</label> <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"current-password\" required class=\"appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm\" placeholder=\"user\"></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"root\" class=\"mt-10 flex items-center justify-center bg-gray-100\"><div class=\"max-w-md w-full space-y-8 p-10 bg-white rounded-lg shadow-md\"><div><h2 class=\"mt-6 text-center text-3xl font-extrabold text-gray-900\">Sign in to your account\r</h2></div><form class=\"mt-8 space-y-6\" hx-post=\"/injection/login\" hx-target=\"#root\" hx-swap=\"outerHTML\"><div class=\"rounded-md shadow-sm -space-y-px\"><label for=\"username\" class=\"font-bold\">Username</label> <input hx-preserve id=\"username\" name=\"username\" type=\"text\" autocomplete=\"username\" required class=\"appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm\" placeholder=\"user\"> <label for=\"password\" class=\"font-bold\">Password</label> <input id=\"password\" name=\"password\" type=\"password\" autocomplete=\"current-password\" required class=\"appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm\" placeholder=\"user\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -35,7 +35,7 @@ func InjectionPage(err string) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(err)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `tasks\injection\index.templ`, Line: 24, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `tasks\injection\index.templ`, Line: 20, Col: 28}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -77,7 +77,7 @@ func LoginSuccess(username string) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(username)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tasks\injection\index.templ`, Line: 42, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tasks\injection\index.templ`, Line: 38, Col: 38}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

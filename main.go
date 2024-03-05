@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/fingann/swat/pkg/flags"
 	"github.com/fingann/swat/tasks/cmonster"
 	"github.com/fingann/swat/tasks/security"
 	"io"
@@ -51,6 +52,17 @@ func main() {
 		}
 		c.HTML(http.StatusOK, "", public.IndexPage(""))
 	})
+
+	r.POST("/flag/submit", func(c *gin.Context) {
+		flagValue := c.PostForm("flag")
+		taskName, ok := flags.CheckFlag(flagValue)
+		if ok {
+			c.JSON(http.StatusOK, gin.H{"name": taskName})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Flag"})
+	})
+
 	if err := injection.RegisterRoutes(r); err != nil {
 		fmt.Printf("failed to register routes: %v", err)
 		return

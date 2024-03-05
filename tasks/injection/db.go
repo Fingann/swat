@@ -9,7 +9,7 @@ import (
 )
 
 // This task is a SQL injection task,it contains a in-memory sqlite database and a login page.
-// The databse should be contain two tables one for users with two users, admin and user, and another table "geodata" containing a flag.
+// The database should contain two tables one for users with two users, admin and user, and another table "geodata" containing a flag.
 
 func SetupDb() (*sql.DB, error) {
 	db, err := sql.Open("sqlite", "file::memory:?cache=shared")
@@ -30,7 +30,7 @@ func CreateTables(db *sql.DB) error {
 		return fmt.Errorf("failed to create users table: %w", err)
 	}
 
-	_, err = db.Exec(fmt.Sprintf("INSERT INTO users (username, password, message) VALUES ('geodata', 'why is this not hash?', '%s}')", flags.InjectionFlag))
+	_, err = db.Exec(fmt.Sprintf("INSERT INTO users (username, password, message) VALUES ('admin', 'why is this not hash?', '%s')", flags.InjectionFlag))
 	if err != nil {
 		return fmt.Errorf("failed to insert admin user: %w", err)
 	}
@@ -43,7 +43,7 @@ func CreateTables(db *sql.DB) error {
 	return nil
 }
 
-// login is a function that is vulnerable to sql injection and returns the result
+// Login is a function that is vulnerable to sql injection and returns the result
 func Login(db *sql.DB, username, password string) (string, error) {
 	var message string
 	sql := fmt.Sprintf("SELECT message FROM users WHERE username='%s' AND password='%s'", username, password)

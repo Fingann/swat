@@ -48,20 +48,36 @@ func Task(title string, imgSrc string, link string) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full p-2\" x-data=\"{ hover: false }\"><div class=\"bg-gray-200 p-4 rounded-lg shadow-lg\" x-on:mouseenter=\"hover = true\" x-on:mouseleave=\"hover = false\"><h2 class=\"text-xl font-bold mb-2 text-gray-800\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full p-2\" x-data=\"{ hover: false, isDone: false }\" x-init=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(`isDone = localStorage.getItem("` + title + `") === 'done'`))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" @updatecompleted.window=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(`console.log($event,' yolo'); if ($event.detail === "` + title + `"){  isDone = true} `))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><div class=\"bg-gray-200 p-4 rounded-lg shadow-lg relative\" x-on:mouseenter=\"hover = true\" x-on:mouseleave=\"hover = false\"><h2 class=\"text-xl font-bold mb-2 text-gray-800\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `public\index.templ`, Line: 10, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `public\index.templ`, Line: 10, Col: 22}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2><div class=\"relative\"><img src=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" <span x-show.important=\"isDone\" :class=\"{ &#39;hide&#39;: !isDone }\" class=\"hide text-green-500 ml-2\">[Completed &#10004;]</span><!-- Checkmark when task is done --></h2><div class=\"relative\"><img src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -69,7 +85,7 @@ func Task(title string, imgSrc string, link string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"w-full  rounded-lg\" :class=\"{&#39;grayscale&#39;: !hover}\"> <button hx-get=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"w-full rounded-lg\" :class=\"{&#39;grayscale&#39;: !hover}\"> <button hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -77,7 +93,7 @@ func Task(title string, imgSrc string, link string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#main\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-replace-url=\"true\" class=\"block text-blue-500 hover:underline absolute inset-0 flex items-center justify-center opacity-0\" :class=\"{&#39;opacity-100&#39;: hover}\" style=\"background-color: rgba(0,0,0,0.5); color: white;\">Go to Task</button></div></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#main\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-replace-url=\"true\" class=\"absolute inset-0 w-full h-full flex items-center justify-center text-blue-500 hover:underline opacity-0\" :class=\"{&#39;opacity-100&#39;: hover}\" style=\"background-color: rgba(0,0,0,0.5); color: white;\">Go to Task\r</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -102,11 +118,31 @@ func IndexPage(err string) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"root\" class=\"mt-10 flex items-center justify-center bg-gray-100\"><div class=\"w-8/ bg-white p-4 rounded-lg shadow-lg\"><h1 class=\"text-2xl font-bold text-gray-800\">Tasks</h1><div class=\"mt-4\"><div class=\"grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 -mx-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"root\" class=\"flex flex-col items-center justify-center bg-gray-100\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = Submit().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"bg-gray-100 p-4 rounded-lg shadow-lg\"><h1 class=\"text-2xl font-bold text-gray-800\">Tasks</h1><div class=\"mt-4\"><div class=\"grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 -mx-2\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = Task("Security", "/static/dist/images/security.webp", "/security").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = Task("Injection", "/static/dist/images/sqlinjection.webp", "/injection").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = Task("Validation", "/static/dist/images/validation.webp", "/validation").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = Task("Hardcoded", "/static/dist/images/hardcoded.webp", "/hardcoded").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -118,27 +154,35 @@ func IndexPage(err string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Task("Hardcoded", "/static/dist/images/hardcoded.webp", "/hardcoded").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = Task("Validation", "/static/dist/images/validation.webp", "/validation").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		templ_7745c5c3_Err = Task("Cmonster", "/static/dist/images/cmonster.webp", "/cmonster").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Task("Security", "/static/dist/images/security.webp", "/security").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = Task("Generic", "/static/dist/images/generictask.webp", "/traversal").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func Submit() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\r\n    function submitFlag() {\r\n        flagInput = document.getElementById('flag');\r\n        const formData = new FormData(document.querySelector('#flag-submit-form'));\r\n        fetch('/flag/submit', {\r\n            method: 'POST',\r\n            body: formData,\r\n        })\r\n        .then(response => {\r\n            if (!response.ok) {\r\n                // Add borderClass to input\r\n                flagInput.classList.add('border-red-500');\r\n                throw new Error('Network response was not ok');\r\n            }\r\n            return response.json();\r\n        })\r\n        .then(data => {\r\n            localStorage.setItem(data.name, 'done');\r\n            dispatchEvent(new CustomEvent('updatecompleted', { detail: data.name }));\r\n            flagInput.classList.remove('border-red-500');\r\n            Swal.fire({\r\n                            title: 'Success!',\r\n                            text: 'You have completed the task ' + data.name,\r\n                            icon: 'success',\r\n                            confirmButtonColor: '#3085d6',\r\n                            })\r\n        })\r\n        .catch(error => {\r\n            console.error('Error submitting flag:', error);\r\n            flagInput.classList.add('border-red-500');\r\n        });\r\n    }\r\n</script><div class=\"bg-white w-8/12 mt-5\" x-data=\"{ flag: &#39;&#39;, submissionStatus: &#39;notSubmitted&#39; }\"><form id=\"flag-submit-form\" @submit.prevent=\"submitFlag\" class=\"flex items-center bg-white rounded-md overflow-hidden shadow-sm\"><label for=\"flag\" class=\"sr-only\">Flag:</label> <input type=\"text\" x-model=\"flag\" id=\"flag\" name=\"flag\" placeholder=\"Enter flag here\" class=\"flex-1 px-4 text-sm focus:ring-0 focus:outline-none border-2\" style=\"padding-top: 0.64rem; padding-bottom: 0.864rem;\" required> <button type=\"submit\" class=\"px-4 py-3 bg-indigo-600 text-white text-sm rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50\">Submit Flag\r</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

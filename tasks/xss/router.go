@@ -19,7 +19,6 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
-var Flag = "flag{try_the_admin_user}"
 var sseChan = make(chan string)
 
 func RegisterRoutes(r *gin.Engine) error {

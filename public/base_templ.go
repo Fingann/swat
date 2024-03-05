@@ -71,7 +71,7 @@ func TopBar() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"bg-blue-500 text-white w-full p-4 flex justify-between items-center\"><div class=\"text-lg font-semibold\"><a hx-get=\"/index\" hx-swap=\"outerHTML\" hx-push-url=\"true\" hx-target=\"#root\" class=\"hover:text-blue-300\">SWAT - <b>S</b>ecure <b>W</b>eb <b>A</b>pplication <b>T</b>esting       </a></div><nav><ul class=\"flex space-x-4\"><li><a hx-get=\"/index\" hx-swap=\"outerHTML\" hx-push-url=\"true\" hx-target=\"#root\" class=\"hover:text-blue-300\">Home</a></li></ul></nav></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"bg-blue-500 text-white w-full p-4 flex justify-between items-center\"><div class=\"text-lg font-semibold\"><a hx-get=\"/index\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-target=\"#main\" class=\"hover:text-blue-300\">SWAT - <b>S</b>ecure <b>W</b>eb <b>A</b>pplication <b>T</b>esting       </a></div><nav><ul class=\"flex space-x-4\"><li><a hx-get=\"/index\" hx-swap=\"outerHTML\" hx-push-url=\"true\" hx-target=\"#root\" class=\"hover:text-blue-300\">Tasks</a></li></ul></nav></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
