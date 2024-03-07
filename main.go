@@ -28,6 +28,7 @@ import (
 var distFolder embed.FS
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
 
@@ -102,6 +103,7 @@ func main() {
 	wg.Add(1)
 	go func(wg *sync.WaitGroup, r *gin.Engine) {
 		defer wg.Done()
+		fmt.Printf("running server on :8081\n")
 		if err := r.Run(":8081"); err != nil {
 			fmt.Printf("failed to run server: %v", err)
 			return
