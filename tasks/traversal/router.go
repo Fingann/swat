@@ -3,6 +3,7 @@ package traversal
 import (
 	_ "embed"
 	"fmt"
+	"github.com/fingann/swat/pkg/flags"
 	"net/http"
 	"path"
 	"strings"
@@ -12,8 +13,6 @@ import (
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 )
-
-var Flag = "flag{try_the_admin_user}"
 
 func RegisterRoutes(r *gin.Engine) error {
 	setupCfolder()
@@ -119,7 +118,7 @@ func setupCfolder() error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	_, err = file.Write([]byte(Flag))
+	_, err = file.Write([]byte(flags.TraversalFlag))
 	if err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}

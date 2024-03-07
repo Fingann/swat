@@ -140,7 +140,7 @@ func VisitWebsiteWithRod(site string) error {
 
 	cookie := &proto.NetworkCookieParam{
 		Name:     "flag",
-		Value:    flags.TraversalFlag,
+		Value:    flags.XssFlag,
 		URL:      site,
 		HTTPOnly: false,
 		Secure:   false,

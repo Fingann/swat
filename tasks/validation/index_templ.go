@@ -223,13 +223,14 @@ func Product(product ProductData) templ.Component {
 
 func TriggerCartUpdate(inputId string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_TriggerCartUpdate_0d91`,
-		Function: `function __templ_TriggerCartUpdate_0d91(inputId){document.getElementById(inputId).addEventListener('change', function() {
+		Name: `__templ_TriggerCartUpdate_22d9`,
+		Function: `function __templ_TriggerCartUpdate_22d9(inputId){document.getElementById(inputId).addEventListener('change', function(event) {
+        event.target.value = Math.max(0, event.target.value);
         cartUpdate()
     });
 }`,
-		Call:       templ.SafeScript(`__templ_TriggerCartUpdate_0d91`, inputId),
-		CallInline: templ.SafeScriptInline(`__templ_TriggerCartUpdate_0d91`, inputId),
+		Call:       templ.SafeScript(`__templ_TriggerCartUpdate_22d9`, inputId),
+		CallInline: templ.SafeScriptInline(`__templ_TriggerCartUpdate_22d9`, inputId),
 	}
 }
 
@@ -267,8 +268,8 @@ func SubtractItemCount(inputId string, buttonId string) templ.ComponentScript {
 
 func BuyButtonClick() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BuyButtonClick_ca86`,
-		Function: `function __templ_BuyButtonClick_ca86(){document.getElementById("buy-button").addEventListener('click', function() {
+		Name: `__templ_BuyButtonClick_56ef`,
+		Function: `function __templ_BuyButtonClick_56ef(){document.getElementById("buy-button").addEventListener('click', function() {
             let productQuantityList =[]
             document.querySelectorAll('input[data-price]').forEach(input => {
                 const price = parseFloat(input.getAttribute('data-price'));
@@ -307,13 +308,17 @@ func BuyButtonClick() templ.ComponentScript {
                             },
                             body: JSON.stringify(productQuantityList),
                     }).then((response) => {
+                            console.log(response)
                             if (!response.ok) {
                                 throw new Error("Network response was not ok.");
                             }
-                       
+                            return response.json();
+                    }).then(response =>{
+                            console.log("response", response)
+
                             Swal.fire({
                             title: 'Success!',
-                            text: 'You have successfully checked out!',
+                            text: response.message || 'Your purchase was successful!',
                             icon: 'success',
                             confirmButtonColor: '#3085d6',
                             }).then((result) => {
@@ -339,7 +344,7 @@ func BuyButtonClick() templ.ComponentScript {
                 })
         });
 }`,
-		Call:       templ.SafeScript(`__templ_BuyButtonClick_ca86`),
-		CallInline: templ.SafeScriptInline(`__templ_BuyButtonClick_ca86`),
+		Call:       templ.SafeScript(`__templ_BuyButtonClick_56ef`),
+		CallInline: templ.SafeScriptInline(`__templ_BuyButtonClick_56ef`),
 	}
 }

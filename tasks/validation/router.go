@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"fmt"
+	"github.com/fingann/swat/pkg/flags"
 	"net/http"
 	"strconv"
 
@@ -60,6 +61,13 @@ func RegisterRoutes(r *gin.Engine) error {
 			return
 		}
 		AvailableCash -= total
+		// Check if the flag item is in the purchase
+		for _, product := range products {
+			if product.Id == "id1" && product.Quantity > 0 {
+				c.JSON(http.StatusOK, gin.H{"message": "Purchase successful, " + flags.ValidationFlag})
+				return
+			}
+		}
 		c.JSON(http.StatusOK, gin.H{"message": "Purchase successful"})
 	})
 	return nil

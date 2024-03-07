@@ -104,7 +104,8 @@ templ Product(product ProductData) {
 }
 
 script TriggerCartUpdate(inputId string){
-    document.getElementById(inputId).addEventListener('change', function() {
+    document.getElementById(inputId).addEventListener('change', function(event) {
+        event.target.value = Math.max(0, event.target.value);
         cartUpdate()
     });
 }
@@ -170,13 +171,17 @@ script BuyButtonClick() {
                             },
                             body: JSON.stringify(productQuantityList),
                     }).then((response) => {
+                            console.log(response)
                             if (!response.ok) {
                                 throw new Error("Network response was not ok.");
                             }
-                       
+                            return response.json();
+                    }).then(response =>{
+                            console.log("response", response)
+
                             Swal.fire({
                             title: 'Success!',
-                            text: 'You have successfully checked out!',
+                            text: response.message || 'Your purchase was successful!',
                             icon: 'success',
                             confirmButtonColor: '#3085d6',
                             }).then((result) => {
