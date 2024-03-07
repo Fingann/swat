@@ -31,7 +31,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-	if _, ok := os.LookupEnv("DEBUG"); !ok {
+	if _, ok := os.LookupEnv("DEBUG"); ok {
 		r.Use(gin.Logger())
 	} else {
 		r.Use(gin.LoggerWithConfig(gin.LoggerConfig{Output: io.Discard}))

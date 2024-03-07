@@ -16,16 +16,6 @@ templ Head() {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <link rel="icon" type="image/x-icon" href="static/dist/favicon.ico"/>
-        <script>
-        htmx.logger = function(elt, event, data) {
-    if(console) {
-        console.log(event, elt, data);
-    }
-}
-htmx.logAll();
-  htmx.config.debug = true;
-  htmx.config.includeIndicatorStyles = false; // Optional: Set to false to not show the indicators
-</script>
         <title>SWAT - Secure Web Application Testing</title>
     </head>
 }
